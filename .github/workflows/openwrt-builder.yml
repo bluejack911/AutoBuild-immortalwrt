@@ -149,29 +149,6 @@ jobs:
         name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
 
-    - name: 生成发布标签
-      id: tag
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
-      run: |
-        echo "release_tag=$(date +"%Y.%m.%d-%H.%M")" >> ${GITHUB_OUTPUT}
-        touch release.txt
-        echo "
-        💻 架构: x86-64
-
-        📂 源码: ${{ env.REPO_URL }}
-
-        🌳 分支: ${{ env.REPO_BRANCH }}
-
-        ⏱️ 编译时间: $(date +"%Y年%m月%d日%H时%M分")
-
-        🌐 管理地址: 192.168.0.2
-
-        👤 用户名: root
-
-        🔒 密码: password 
-        
-        " >> release.txt
-        echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: 自动发布固件到 Releases
       uses: softprops/action-gh-release@master
@@ -181,15 +158,7 @@ jobs:
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
 
-#    - name: TG推送
-#      run: curl "https://api2.pushdeer.com/message/push?pushkey=${{ secrets.PUSHDEER_TOKEN }}&text=【Github Actions】AutoBuild-immortalwrt-x86 打包成功"
 
-    - name: 删除运行记录
-      uses: Mattraks/delete-workflow-runs@main
-      with:
-        retain_days: 1
-        keep_minimum_runs: 1
-        token: ${{ env.GITHUB_TOKEN }}
 
     - name: 删除自动发布的旧固件
       uses: dev-drprasad/delete-older-releases@master
